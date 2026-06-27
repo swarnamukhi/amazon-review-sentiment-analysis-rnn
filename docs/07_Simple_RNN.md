@@ -937,4 +937,353 @@ The first LSTM returns all hidden states so that the second LSTM can continue pr
 - The output shape with `return_sequences=True` is `(batch_size, 100, 64)`.
 - Since this project performs **sentiment classification**, only one prediction is required for each review.
 - Therefore, `return_sequences=False` is the appropriate choice for this model.
+## 7.25 Complete Data Flow Through the Model
+
+Now that we understand the Embedding Layer and the RNN, let's trace how a single batch of reviews flows through the complete model.
+
+The model architecture is:
+
+```python
+Embedding(MAX_FEATURES, 128, input_length=MAX_LEN)
+
+↓
+
+SimpleRNN(64, return_sequences=False)
+
+↓
+
+Dropout(0.5)
+
+↓
+
+Dense(32, activation='relu')
+
+↓
+
+Dense(1, activation='sigmoid')
+```
+
+Suppose:
+
+```python
+batch_size = 128
+MAX_LEN = 100
+embedding_dim = 128
+units = 64
+```
+
+The input and output shapes at each layer are shown below.
+
+```
+Customer Reviews
+Shape = (128)
+
+↓
+
+Tokenization
+
+↓
+
+Padding
+
+Shape = (128,100)
+
+↓
+
+Embedding Layer
+
+Shape = (128,100,128)
+
+↓
+
+SimpleRNN
+
+Shape = (128,64)
+
+↓
+
+Dropout
+
+Shape = (128,64)
+
+↓
+
+Dense(32)
+
+Shape = (128,32)
+
+↓
+
+Dense(1)
+
+Shape = (128,1)
+
+↓
+
+Prediction
+```
+
+Each layer transforms the data into a representation that is more useful for sentiment classification.
+
+---
+
+## 7.26 Why is Dropout Used?
+
+After the RNN processes the sequence, it produces one feature vector of size 64 for every review.
+
+Example:
+
+```
+(128,64)
+```
+
+These features are highly informative, but the model may begin to memorize patterns from the training data instead of learning general patterns.
+
+This phenomenon is known as **overfitting**.
+
+To reduce overfitting, the following layer is used:
+
+```python
+Dropout(0.5)
+```
+
+During training, Dropout randomly sets approximately **50% of the neurons to zero** in every batch.
+
+Example:
+
+Before Dropout
+
+```
+[0.91, 0.45, 0.76, 0.82, 0.33, 0.64]
+```
+
+After Dropout
+
+```
+[0.91, 0.00, 0.76, 0.00, 0.33, 0.00]
+```
+
+Notice that the **shape does not change**.
+
+Before Dropout
+
+```
+(128,64)
+```
+
+After Dropout
+
+```
+(128,64)
+```
+
+Only some neuron values are temporarily ignored during training.
+
+This forces the model to learn more robust features instead of depending on only a few neurons.
+
+During prediction (`model.predict()`), Dropout is automatically disabled, and all neurons are used.
+
+---
+
+## 7.27 Why is Dense(32) Used?
+
+After the RNN, each review is represented by a feature vector of length 64.
+
+```
+(128,64)
+```
+
+Instead of making the prediction immediately, the model first passes these features through a fully connected layer.
+
+```python
+Dense(32, activation='relu')
+```
+
+This layer combines and transforms the 64 features into 32 higher-level features.
+
+Graphically,
+
+```
+64 Features
+
+↓
+
+Dense Layer
+
+↓
+
+32 Features
+```
+
+Every one of the 64 input features is connected to all 32 neurons.
+
+This allows the model to learn more complex combinations of the information extracted by the RNN.
+
+The output shape becomes:
+
+```
+(128,32)
+```
+
+---
+
+## 7.28 Why Not Directly Use Dense(1)?
+
+A common interview question is:
+
+**"Why didn't you connect the RNN directly to Dense(1)?"**
+
+Technically, you can.
+
+For example:
+
+```python
+SimpleRNN(64)
+
+↓
+
+Dense(1)
+```
+
+This architecture is valid and often works well for simple problems.
+
+However, adding an intermediate Dense layer provides the model with additional learning capacity.
+
+Instead of immediately making the prediction, the network first learns richer feature combinations.
+
+```
+64 Features
+
+↓
+
+Dense(32)
+
+↓
+
+32 Better Features
+
+↓
+
+Dense(1)
+
+↓
+
+Prediction
+```
+
+This often improves the model's ability to capture complex relationships within the learned RNN features.
+
+---
+
+## 7.29 Final Prediction Layer
+
+The final layer in the model is:
+
+```python
+Dense(1, activation='sigmoid')
+```
+
+This layer contains only **one neuron** because the project performs **binary sentiment classification**.
+
+The sigmoid activation function converts the output into a probability between **0 and 1**.
+
+Example:
+
+```
+Output = 0.92
+```
+
+Interpretation:
+
+- Values close to **1** indicate Positive sentiment.
+- Values close to **0** indicate Negative sentiment.
+
+Typically, a threshold of **0.5** is used.
+
+```
+Probability ≥ 0.5
+
+↓
+
+Positive Review
+
+Probability < 0.5
+
+↓
+
+Negative Review
+```
+
+---
+
+## 7.30 Complete Prediction Pipeline
+
+The complete prediction flow for one review is:
+
+```
+Customer Review
+
+↓
+
+Preprocessing
+
+↓
+
+Tokenization
+
+↓
+
+Padding
+
+↓
+
+Embedding
+
+(100,128)
+
+↓
+
+SimpleRNN
+
+(64)
+
+↓
+
+Dropout
+
+(64)
+
+↓
+
+Dense(32)
+
+↓
+
+Dense(1)
+
+↓
+
+Sigmoid
+
+↓
+
+Prediction Probability
+
+↓
+
+Positive / Negative
+```
+
+This pipeline transforms raw customer text into a final sentiment prediction through a series of preprocessing and deep learning operations.
+
+---
+
+## Key Takeaways
+
+- The Embedding Layer converts token IDs into dense vectors.
+- The RNN learns sequential information from these vectors.
+- Dropout reduces overfitting during training.
+- Dense(32) learns higher-level feature combinations.
+- Dense(1) with sigmoid produces the final sentiment probability.
+- Every layer has a specific role in transforming raw text into an accurate sentiment prediction.
 
