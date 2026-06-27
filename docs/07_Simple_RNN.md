@@ -676,3 +676,265 @@ The batch dimension is processed **in parallel**, while the time dimension is pr
 
 This is one of the key ideas behind how RNNs are efficiently implemented in TensorFlow and Keras.
 
+## 7.19 Understanding `return_sequences`
+
+While processing a sentence, the RNN generates a hidden state at every time step.
+
+Suppose a sentence contains **100 tokens**. The RNN produces a hidden state after processing each token.
+
+```
+Hidden State 1
+      │
+      ▼
+Hidden State 2
+      │
+      ▼
+Hidden State 3
+      │
+      ▼
+...
+      │
+      ▼
+Hidden State 100
+```
+
+Each hidden state contains **64 features** because the RNN in this project is defined as:
+
+```python
+SimpleRNN(
+    units=64
+)
+```
+
+The parameter `return_sequences` determines **which hidden states are returned as the output of the RNN layer**.
+
+---
+
+## 7.20 `return_sequences=False`
+
+This is the configuration used in this project.
+
+```python
+SimpleRNN(
+    units=64,
+    return_sequences=False
+)
+```
+
+When `return_sequences=False`, the RNN returns **only the final hidden state** after processing the complete sentence.
+
+```
+Hidden State 1
+      │
+      ▼
+Hidden State 2
+      │
+      ▼
+Hidden State 3
+      │
+      ▼
+...
+      │
+      ▼
+Hidden State 100
+      │
+      ▼
+Returned as Output
+```
+
+Since only the last hidden state is returned, the output shape becomes:
+
+```
+(batch_size, 64)
+```
+
+For example, if:
+
+```python
+batch_size = 128
+```
+
+the output shape is:
+
+```
+(128, 64)
+```
+
+This means:
+
+- 128 reviews are processed in one batch.
+- Each review produces one final hidden state.
+- Every hidden state contains 64 learned features.
+
+The final hidden state summarizes the information learned from the entire sentence and is passed to the next layer.
+
+---
+
+## 7.21 `return_sequences=True`
+
+When the RNN is created as:
+
+```python
+SimpleRNN(
+    units=64,
+    return_sequences=True
+)
+```
+
+the RNN returns **every hidden state**, not just the final one.
+
+```
+Hidden State 1
+      │
+      ▼
+Hidden State 2
+      │
+      ▼
+Hidden State 3
+      │
+      ▼
+...
+      │
+      ▼
+Hidden State 100
+
+↓
+
+Return All Hidden States
+```
+
+The output shape becomes:
+
+```
+(batch_size, 100, 64)
+```
+
+For example, if:
+
+```python
+batch_size = 128
+```
+
+the output shape becomes:
+
+```
+(128, 100, 64)
+```
+
+This means:
+
+- 128 reviews in one batch.
+- 100 hidden states for every review.
+- Each hidden state contains 64 learned features.
+
+Instead of returning one vector per review, the RNN returns the complete sequence of hidden states.
+
+---
+
+## 7.22 Comparison of `return_sequences`
+
+| `return_sequences=False` | `return_sequences=True` |
+|---------------------------|-------------------------|
+| Returns only the final hidden state | Returns every hidden state |
+| Output Shape: `(batch_size, 64)` | Output Shape: `(batch_size, 100, 64)` |
+| Produces one feature vector per review | Produces one feature vector for every token |
+| Used for text classification | Used when another sequence-processing layer follows |
+| Used in this project | Commonly used in stacked RNN/LSTM architectures |
+
+---
+
+## 7.23 Why Was `return_sequences=False` Used in This Project?
+
+The objective of this project is to predict **one sentiment** for the entire customer review.
+
+Although every review contains 100 tokens, the model only needs **one final prediction** (Positive or Negative).
+
+Therefore, only the **final hidden state** is required.
+
+The model architecture is:
+
+```python
+Embedding(MAX_FEATURES, 128, input_length=100)
+
+↓
+
+SimpleRNN(64, return_sequences=False)
+
+↓
+
+Dropout(0.5)
+
+↓
+
+Dense(32)
+
+↓
+
+Dense(1)
+```
+
+The output of the RNN is:
+
+```
+(batch_size, 64)
+```
+
+This output becomes the input to the Dense layer.
+
+If `return_sequences=True` had been used, the RNN would return:
+
+```
+(batch_size, 100, 64)
+```
+
+The Dense layer in this project expects **one feature vector for each review**, not a sequence of 100 hidden states.
+
+Therefore, `return_sequences=False` is the correct choice for this sentiment classification model.
+
+---
+
+## 7.24 When Should `return_sequences=True` Be Used?
+
+`return_sequences=True` is useful when another sequence-processing layer needs access to every hidden state.
+
+Common use cases include:
+
+- Stacked RNNs
+- Stacked LSTMs
+- Sequence-to-Sequence Models
+- Machine Translation
+- Named Entity Recognition (NER)
+- Speech Recognition
+
+Example:
+
+```python
+Embedding(...)
+
+↓
+
+LSTM(128, return_sequences=True)
+
+↓
+
+LSTM(64, return_sequences=False)
+
+↓
+
+Dense(...)
+```
+
+The first LSTM returns all hidden states so that the second LSTM can continue processing the sequence.
+
+---
+
+## Key Takeaways
+
+- The RNN generates one hidden state at every time step.
+- `return_sequences=False` returns only the final hidden state.
+- `return_sequences=True` returns every hidden state.
+- The output shape with `return_sequences=False` is `(batch_size, 64)`.
+- The output shape with `return_sequences=True` is `(batch_size, 100, 64)`.
+- Since this project performs **sentiment classification**, only one prediction is required for each review.
+- Therefore, `return_sequences=False` is the appropriate choice for this model.
+
