@@ -1287,3 +1287,617 @@ This pipeline transforms raw customer text into a final sentiment prediction thr
 - Dense(1) with sigmoid produces the final sentiment probability.
 - Every layer has a specific role in transforming raw text into an accurate sentiment prediction.
 
+## 7.31 Backpropagation Through Time (BPTT)
+
+Until now, we have learned how an RNN processes a sentence in the forward direction.
+
+However, an important question remains:
+
+**How does the RNN learn the correct weights?**
+
+The answer is **Backpropagation Through Time (BPTT)**.
+
+BPTT is an extension of the backpropagation algorithm used in Artificial Neural Networks. Since an RNN processes sequential data over multiple time steps, the error must also be propagated backward through all of those time steps.
+
+---
+
+## 7.32 Forward Pass
+
+Suppose the input review is:
+
+```
+I love this phone
+```
+
+After preprocessing, tokenization, padding, and embedding, the RNN receives:
+
+```
+100 × 128
+```
+
+The RNN processes the review one token at a time.
+
+```
+Token 1
+      │
+      ▼
+Hidden State 1
+      │
+      ▼
+Token 2
+      │
+      ▼
+Hidden State 2
+      │
+      ▼
+...
+      │
+      ▼
+Token 100
+      │
+      ▼
+Final Hidden State
+      │
+      ▼
+Dense(32)
+      │
+      ▼
+Dense(1)
+      │
+      ▼
+Prediction
+```
+
+Suppose the model predicts:
+
+```
+Prediction = Positive
+
+Probability = 0.62
+```
+
+The actual label is:
+
+```
+Negative
+
+Label = 0
+```
+
+Since the prediction is incorrect, the model must adjust its parameters.
+
+---
+
+## 7.33 Loss Calculation
+
+The prediction is compared with the actual label using the Binary Crossentropy loss function.
+
+```
+Prediction
+
+↓
+
+Actual Label
+
+↓
+
+Binary Crossentropy Loss
+```
+
+A higher loss indicates that the prediction is far from the correct answer.
+
+The objective of training is to reduce this loss.
+
+---
+
+## 7.34 Backward Pass
+
+Once the loss is calculated, TensorFlow begins the backward pass.
+
+The error flows through the network in the reverse direction.
+
+```
+Prediction
+
+↓
+
+Dense(1)
+
+↓
+
+Dense(32)
+
+↓
+
+SimpleRNN
+
+↓
+
+Embedding Layer
+```
+
+Unlike an ANN, the RNN must also update the hidden states that were generated at every time step.
+
+Therefore, the error is propagated backward through the sequence.
+
+```
+Hidden State100
+
+↓
+
+Hidden State99
+
+↓
+
+Hidden State98
+
+↓
+
+...
+
+↓
+
+Hidden State2
+
+↓
+
+Hidden State1
+```
+
+This reverse flow through all time steps is called **Backpropagation Through Time (BPTT)**.
+
+---
+
+## 7.35 Weight Updates
+
+During backpropagation, TensorFlow computes gradients for every trainable parameter.
+
+These include:
+
+- Embedding Layer weights
+- RNN weights
+- Dense layer weights
+
+The optimizer (Adam in this project) uses these gradients to update the parameters.
+
+```
+Old Weights
+
+↓
+
+Compute Gradients
+
+↓
+
+Adam Optimizer
+
+↓
+
+Updated Weights
+```
+
+These updates help the model make more accurate predictions in future training iterations.
+
+---
+
+## 7.36 Why Are All Time Steps Updated?
+
+One of the unique properties of an RNN is that every hidden state contributes to the final prediction.
+
+Therefore, if the final prediction is incorrect, the model cannot simply update the last hidden state.
+
+Instead, it must update the computations performed at every previous time step because each hidden state influenced the next one.
+
+```
+Token 1
+
+↓
+
+Hidden State1
+
+↓
+
+Hidden State2
+
+↓
+
+Hidden State3
+
+↓
+
+...
+
+↓
+
+Hidden State100
+
+↓
+
+Prediction
+```
+
+If Hidden State 1 contains incorrect information, that error propagates through the entire sequence.
+
+Therefore, BPTT updates the model across all time steps.
+
+---
+
+## 7.37 Difference Between Backpropagation and BPTT
+
+| Backpropagation (ANN) | Backpropagation Through Time (RNN) |
+|------------------------|-------------------------------------|
+| Used in Feedforward Networks | Used in Recurrent Neural Networks |
+| Error flows backward through layers | Error flows backward through layers **and time steps** |
+| No memory between inputs | Hidden states connect time steps |
+| Simpler computation | More computationally intensive |
+
+---
+
+## 7.38 Vanishing Gradient Problem
+
+Although RNNs can theoretically remember information from many previous time steps, they often struggle with very long sequences.
+
+During BPTT, gradients become smaller as they travel backward through many time steps.
+
+Eventually, the gradients may become so small that earlier time steps receive almost no updates.
+
+This phenomenon is known as the **Vanishing Gradient Problem**.
+
+As a result, Simple RNNs tend to remember only recent information and may forget important information from earlier in the sequence.
+
+This limitation led to the development of **Long Short-Term Memory (LSTM)** networks, which are specifically designed to preserve long-term information.
+
+The next chapter explains how LSTMs solve this problem.
+
+---
+
+## Key Takeaways
+
+- RNNs learn using **Backpropagation Through Time (BPTT)**.
+- BPTT is an extension of standard backpropagation for sequential data.
+- The prediction error flows backward through both the network layers and the sequence of time steps.
+- All trainable parameters, including the Embedding Layer, RNN, and Dense layers, are updated during training.
+- Long sequences can cause the **Vanishing Gradient Problem**, making it difficult for Simple RNNs to remember information from the beginning of a sequence.
+- LSTM networks were introduced to overcome this limitation.
+## 7.39 Interview Questions
+
+The following are common interview questions related to the RNN architecture used in this project.
+
+### Basic Questions
+
+### Q1. What is a Recurrent Neural Network (RNN)?
+
+**Answer:**
+
+A Recurrent Neural Network (RNN) is a type of neural network designed to process sequential data. Unlike a traditional Artificial Neural Network, an RNN maintains a hidden state (memory) that carries information from previous time steps, allowing it to learn relationships between words in a sequence.
+
+---
+
+### Q2. Why did you choose an RNN for this project?
+
+**Answer:**
+
+This project performs sentiment analysis on customer reviews. Since the order of words affects the meaning of a sentence, an RNN is more suitable than a traditional ANN because it processes words sequentially and remembers previous information using hidden states.
+
+---
+
+### Q3. What was the input to your RNN?
+
+**Answer:**
+
+The input to the RNN was the output of the Embedding Layer.
+
+Input Shape:
+
+```
+(batch_size,100,128)
+```
+
+where:
+
+- batch_size = Number of reviews processed together.
+- 100 = Number of tokens in each padded review.
+- 128 = Embedding features for each token.
+
+---
+
+### Q4. What does `units=64` mean?
+
+**Answer:**
+
+The parameter `units=64` specifies the number of neurons inside the RNN.
+
+Therefore, every hidden state contains 64 learned features.
+
+The output shape becomes:
+
+```
+(batch_size,64)
+```
+
+when `return_sequences=False`.
+
+---
+
+### Q5. What is a hidden state?
+
+**Answer:**
+
+A hidden state is the internal memory of an RNN.
+
+It stores information learned from previous tokens and passes that information to the next time step, enabling the model to understand context within a sentence.
+
+---
+
+### Intermediate Questions
+
+### Q6. How does an RNN process a sentence?
+
+**Answer:**
+
+The RNN processes one token at a time.
+
+At every time step, it receives:
+
+- Current token embedding
+- Previous hidden state
+
+It combines both to generate a new hidden state.
+
+This continues until the final token has been processed.
+
+---
+
+### Q7. Does the RNN create 100 different cells for a sentence of length 100?
+
+**Answer:**
+
+No.
+
+The RNN contains only one cell.
+
+The same cell is reused for every token.
+
+The same trainable weights are shared across all time steps.
+
+---
+
+### Q8. What is weight sharing?
+
+**Answer:**
+
+Weight sharing means the RNN uses the same trainable parameters at every time step instead of creating a new network for each token.
+
+This keeps the number of parameters constant regardless of sentence length.
+
+---
+
+### Q9. Explain batch processing in an RNN.
+
+**Answer:**
+
+During training, the RNN processes an entire batch of reviews simultaneously.
+
+For example:
+
+```
+Embedding Output
+
+(128,100,128)
+```
+
+At Time Step 1, the first token from all 128 reviews is processed together.
+
+The hidden state becomes:
+
+```
+(128,64)
+```
+
+The process continues for Time Steps 2, 3, ..., 100.
+
+The batch dimension is processed in parallel, while the time dimension is processed sequentially.
+
+---
+
+### Q10. What is `return_sequences=False`?
+
+**Answer:**
+
+It returns only the final hidden state.
+
+Output Shape:
+
+```
+(batch_size,64)
+```
+
+This is suitable for classification tasks where one prediction is required for the entire sequence.
+
+---
+
+### Q11. What is `return_sequences=True`?
+
+**Answer:**
+
+It returns the hidden state from every time step.
+
+Output Shape:
+
+```
+(batch_size,100,64)
+```
+
+This is commonly used when another RNN/LSTM layer follows.
+
+---
+
+### Q12. Why did you use `return_sequences=False`?
+
+**Answer:**
+
+This project predicts one sentiment label for the entire review.
+
+Only the final hidden state is required because it summarizes the complete sentence.
+
+Therefore, `return_sequences=False` was used.
+
+---
+
+### Q13. Why is Dropout used after the RNN?
+
+**Answer:**
+
+Dropout reduces overfitting by randomly disabling a fraction of neurons during training.
+
+This encourages the model to learn more general patterns instead of memorizing the training data.
+
+---
+
+### Q14. Why did you use `Dense(32)` before `Dense(1)`?
+
+**Answer:**
+
+The intermediate Dense layer learns higher-level feature combinations from the 64 RNN features before making the final prediction.
+
+Although `Dense(1)` can be connected directly to the RNN, using `Dense(32)` often improves learning capacity.
+
+---
+
+### Advanced Questions
+
+### Q15. What is Backpropagation Through Time (BPTT)?
+
+**Answer:**
+
+Backpropagation Through Time is the learning algorithm used by RNNs.
+
+It propagates the prediction error backward through both the network layers and the sequence of time steps to update all trainable parameters.
+
+---
+
+### Q16. What is the Vanishing Gradient Problem?
+
+**Answer:**
+
+During Backpropagation Through Time, gradients become progressively smaller as they travel backward through many time steps.
+
+As a result, the RNN struggles to learn long-term dependencies because earlier time steps receive very small updates.
+
+---
+
+### Q17. How does LSTM solve this problem?
+
+**Answer:**
+
+LSTM introduces a memory cell and gating mechanisms (Forget Gate, Input Gate, and Output Gate) that preserve important information over long sequences.
+
+This significantly reduces the vanishing gradient problem.
+
+---
+
+### Q18. What are the limitations of a Simple RNN?
+
+**Answer:**
+
+- Suffers from vanishing gradients.
+- Cannot effectively remember long-term dependencies.
+- Performance decreases for long sequences.
+- Slower than feedforward networks due to sequential processing.
+
+---
+
+### Q19. Can an RNN process sentences of different lengths?
+
+**Answer:**
+
+Yes.
+
+However, during batch training, all sequences are padded to the same length using `pad_sequences()` so that they can be processed efficiently in parallel.
+
+---
+
+### Q20. Explain your complete RNN model architecture.
+
+**Answer:**
+
+```
+Customer Review
+
+↓
+
+Preprocessing
+
+↓
+
+Tokenization
+
+↓
+
+Padding
+
+↓
+
+Embedding Layer
+
+↓
+
+SimpleRNN(64)
+
+↓
+
+Dropout(0.5)
+
+↓
+
+Dense(32)
+
+↓
+
+Dense(1)
+
+↓
+
+Sigmoid
+
+↓
+
+Positive / Negative
+```
+
+This pipeline converts raw customer reviews into sentiment predictions.
+
+---
+
+## 7.40 Common Mistakes
+
+- Confusing hidden states with output vectors.
+- Assuming an RNN creates a different cell for every token.
+- Thinking token IDs can be directly understood by the RNN.
+- Forgetting that all time steps share the same weights.
+- Using `return_sequences=True` when only one prediction is required.
+- Ignoring the vanishing gradient problem for long sequences.
+
+---
+
+## 7.41 Best Practices
+
+- Use sequence padding before feeding data into an RNN.
+- Choose the number of units based on the complexity of the problem.
+- Apply Dropout to reduce overfitting.
+- Use `return_sequences=False` for sequence classification tasks.
+- Save both the trained model and tokenizer for inference.
+- Consider using LSTM or GRU for longer sequences.
+
+---
+
+## 7.42 Chapter Summary
+
+In this chapter, we explored the complete working of a Simple Recurrent Neural Network (RNN).
+
+We learned how the RNN processes sequential data one token at a time, how hidden states carry information through the sequence, how batches are processed efficiently, and how Backpropagation Through Time updates the model during training.
+
+We also understood why `return_sequences=False` was appropriate for this sentiment classification project, how Dropout and Dense layers contribute to better generalization, and why Simple RNNs struggle with long-term dependencies.
+
+The next chapter introduces **Long Short-Term Memory (LSTM)** networks, which extend the RNN architecture by introducing memory cells and gating mechanisms to overcome the vanishing gradient problem and better capture long-term dependencies.
+
