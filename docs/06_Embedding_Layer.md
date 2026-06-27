@@ -1015,5 +1015,248 @@ Output
 ```
 
 This tensor is directly passed to the RNN layer for sequence learning.
+## 6.28 Trainable Embeddings vs Pretrained Embeddings
+
+There are two main approaches for obtaining word embeddings.
+
+### 1. Trainable Embeddings
+
+In this approach, the embedding vectors are learned from scratch during model training.
+
+This is exactly the approach used in this project.
+
+```python
+Embedding(
+    input_dim=5000,
+    output_dim=128
+)
+```
+
+Initially, the embedding vectors contain random values.
+
+During training, these vectors are updated through backpropagation until they capture meaningful relationships between words.
+
+Advantages
+
+* Learns embeddings specific to the dataset.
+* Easy to implement.
+* No external embedding files are required.
+* Suitable for medium and large datasets.
+
+Disadvantages
+
+* Requires sufficient training data.
+* Takes time to learn meaningful embeddings.
+* Performance may be lower when the dataset is very small.
+
+---
+
+### 2. Pretrained Embeddings
+
+Instead of learning embeddings from scratch, pretrained embeddings use vectors that have already been trained on extremely large text corpora.
+
+These vectors already understand many relationships between words before the model training begins.
+
+Examples include:
+
+* Word2Vec
+* GloVe
+* FastText
+* BERT Embeddings
+
+Advantages
+
+* Better performance on smaller datasets.
+* Already contains semantic knowledge.
+* Faster convergence during training.
+
+Disadvantages
+
+* Large embedding files.
+* May not perfectly match the project's vocabulary.
+* Less flexible for domain-specific language.
+
+---
+
+## 6.29 Common Types of Pretrained Embeddings
+
+### Word2Vec
+
+Word2Vec was developed by Google.
+
+It learns word representations by analyzing the context in which words appear.
+
+Words used in similar contexts receive similar vectors.
+
+Example
+
+```text
+King  → Vector
+
+Queen → Similar Vector
+
+Man   → Vector
+
+Woman → Similar Vector
+```
+
+Word2Vec is static.
+
+Every occurrence of the word receives the same embedding regardless of sentence context.
+
+---
+
+### GloVe
+
+GloVe (Global Vectors for Word Representation) was developed by Stanford University.
+
+Unlike Word2Vec, GloVe learns embeddings using global word co-occurrence statistics.
+
+It performs well on many NLP tasks and has been widely used in traditional deep learning models.
+
+---
+
+### FastText
+
+FastText was developed by Facebook.
+
+Instead of treating a word as a single unit, FastText breaks each word into smaller character-level components called subwords.
+
+Example
+
+```text
+playing
+
+↓
+
+play
+
+lay
+
+aying
+
+ing
+```
+
+This allows FastText to generate embeddings even for words that were not seen during training.
+
+---
+
+### BERT Embeddings
+
+BERT uses contextual embeddings.
+
+Unlike Word2Vec or GloVe,
+
+the meaning of a word changes depending on the sentence.
+
+Example
+
+```text
+I went to the bank to deposit money.
+
+The fisherman sat on the bank of the river.
+```
+
+The word **bank** has different meanings in the two sentences.
+
+BERT generates different embeddings for each occurrence based on context.
+
+This makes BERT much more powerful than traditional embedding techniques.
+
+---
+
+## 6.30 Why Was the Keras Embedding Layer Used in This Project?
+
+The Amazon Review Sentiment Analysis project uses the Keras Embedding Layer instead of pretrained embeddings for the following reasons:
+
+* The objective was to understand how embeddings are learned.
+* The dataset is sufficiently large to learn useful embeddings.
+* The Embedding layer integrates seamlessly with the RNN/LSTM architecture.
+* It simplifies the training pipeline without requiring external embedding files.
+* It demonstrates end-to-end deep learning using TensorFlow/Keras.
+
+---
+
+## 6.31 Comparison
+
+| Technique       | Learns During Training                 | Context Aware | Handles Unknown Words | External Files Required |
+| --------------- | -------------------------------------- | ------------- | --------------------- | ----------------------- |
+| Keras Embedding | Yes                                    | No            | No                    | No                      |
+| Word2Vec        | No (Pretrained)                        | No            | No                    | Yes                     |
+| GloVe           | No (Pretrained)                        | No            | No                    | Yes                     |
+| FastText        | No (Pretrained)                        | No            | Yes                   | Yes                     |
+| BERT            | Already Pretrained (Can be Fine-Tuned) | Yes           | Yes                   | Yes                     |
+
+---
+
+## 6.32 Interview Questions
+
+### Basic
+
+**Q1. What is an Embedding Layer?**
+
+**Q2. Why is an Embedding Layer required after tokenization?**
+
+**Q3. Why can't integer token IDs be given directly to an RNN?**
+
+**Q4. What is the difference between token IDs and embedding vectors?**
+
+**Q5. What does `output_dim=128` mean?**
+
+### Intermediate
+
+**Q6. Why is the embedding matrix `5000 × 128`?**
+
+**Q7. Why does one review become `100 × 128`?**
+
+**Q8. Why does one batch become `128 × 100 × 128`?**
+
+**Q9. How does the Embedding Layer learn?**
+
+**Q10. Is the Embedding Layer trainable?**
+
+### Advanced
+
+**Q11. What is the difference between trainable and pretrained embeddings?**
+
+**Q12. When would you choose Word2Vec instead of a trainable embedding?**
+
+**Q13. How is FastText different from Word2Vec?**
+
+**Q14. Why is BERT considered contextual?**
+
+**Q15. Why did you choose the Keras Embedding layer for this project?**
+
+---
+
+## 6.33 Common Mistakes
+
+* Assuming token IDs contain semantic meaning.
+* Thinking the embedding vectors are manually defined.
+* Confusing vocabulary size with sentence length.
+* Believing embeddings are fixed during training.
+* Forgetting that the embedding matrix is trainable by default.
+
+---
+
+## 6.34 Best Practices
+
+* Fit the tokenizer only on the training data.
+* Choose an embedding dimension appropriate for the problem.
+* Use pretrained embeddings when working with small datasets or when prior language knowledge is beneficial.
+* Save the trained model so the learned embeddings are preserved.
+* Use the same tokenizer during inference to maintain consistency.
+
+---
+
+## 6.35 Final Chapter Summary
+
+The Embedding Layer is the first trainable layer in the deep learning model. It converts integer token IDs into dense vector representations that capture semantic relationships between words.
+
+Unlike token IDs, embedding vectors are learned during training through backpropagation. These learned representations allow the RNN to understand meaningful patterns in text rather than arbitrary numerical identifiers.
+
+In this project, the Keras Embedding layer learns 128-dimensional representations for the top 5000 vocabulary words. The output tensor has the shape `(batch_size, MAX_LEN, 128)` and serves as the input to the RNN layer.
+
 
 
