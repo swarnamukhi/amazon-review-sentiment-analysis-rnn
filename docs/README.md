@@ -1,55 +1,161 @@
+# Amazon Review Sentiment Analysis using Deep Learning
 
-# Amazon Review Sentiment Analysis using RNN & LSTM
+## Project Overview
 
-## Project Documentation
+This project demonstrates an end-to-end implementation of Sentiment Analysis using Natural Language Processing (NLP) and Deep Learning techniques. Amazon product reviews are classified as Positive or Negative using Recurrent Neural Networks (RNN) and Long Short-Term Memory (LSTM) networks.
 
-Welcome to the technical documentation for this project.
-
-This documentation explains every concept, implementation decision, model architecture, and training strategy used in this project.
-
-It is intended to serve as:
-
-- A learning resource
-- A future revision guide
-- Interview preparation notes
-- Technical documentation
+The project covers the complete NLP pipeline, including text preprocessing, tokenization, sequence padding, embedding generation, model building, hyperparameter tuning using Bayesian Optimization, and model evaluation.
 
 ---
 
-# Table of Contents
+## Project Objectives
 
-1. Project Introduction
+- Build an end-to-end sentiment analysis system.
+- Understand the complete NLP workflow.
+- Implement RNN and LSTM models.
+- Perform Bayesian Hyperparameter Optimization using Keras Tuner.
+- Document every concept from theory to implementation.
 
-2. Dataset Understanding
+---
 
-3. Exploratory Data Analysis
+## Technologies Used
 
-4. Text Cleaning
+- Python
+- TensorFlow
+- Keras
+- Keras Tuner
+- NumPy
+- Pandas
+- Matplotlib
+- Scikit-learn
+- Natural Language Processing (NLP)
 
-5. Tokenization
+---
 
-6. Sequence Padding
+## Project Workflow
 
-7. Embedding Layer
+Amazon Reviews Dataset
 
-8. Recurrent Neural Network (RNN)
+↓
 
-9. Long Short-Term Memory (LSTM)
+Data Cleaning
 
-10. Hyperparameter Tuning
+↓
 
-11. Bayesian Optimization
+Exploratory Data Analysis (EDA)
 
-12. Model Training
+↓
 
-13. Model Evaluation
+Text Preprocessing
 
-14. Saving Model
+↓
 
-15. Prediction Pipeline
+Tokenization
 
-16. Interview Questions
+↓
 
-17. Common Mistakes
+Sequence Padding
 
-18. Future Improvements
+↓
+
+Embedding Layer
+
+↓
+
+Simple RNN
+
+↓
+
+LSTM
+
+↓
+
+Bayesian Hyperparameter Optimization
+
+↓
+
+Model Training
+
+↓
+
+Performance Evaluation
+
+↓
+
+Sentiment Prediction
+
+---
+
+## Repository Structure
+
+```
+Amazon-Review-Sentiment-Analysis/
+
+├── docs/
+├── notebooks/
+├── models/
+├── images/
+├── README.md
+├── LICENSE
+└── .gitignore
+```
+
+---
+
+## Documentation
+
+| Chapter | Description |
+|---------|-------------|
+| 01 | Project Introduction |
+| 02 | Dataset & Exploratory Data Analysis |
+| 03 | Data Preprocessing |
+| 04 | Tokenization |
+| 05 | Sequence Padding |
+| 06 | Embedding Layer |
+| 07 | Simple RNN |
+| 08 | LSTM |
+| 09 | Project Summary |
+
+---
+
+## Key Concepts Covered
+
+- Natural Language Processing (NLP)
+- Text Cleaning
+- Tokenization
+- Vocabulary Creation
+- Integer Encoding
+- Sequence Padding
+- Word Embeddings
+- Recurrent Neural Networks (RNN)
+- Vanishing Gradient Problem
+- Long Short-Term Memory (LSTM)
+- Forget Gate
+- Input Gate
+- Candidate Cell State
+- Output Gate
+- Cell State
+- Hidden State
+- Backpropagation Through Time (BPTT)
+- Dropout Regularization
+- Binary Classification
+- Bayesian Hyperparameter Optimization
+- Keras Tuner
+
+---
+
+## Future Improvements
+
+- Bidirectional LSTM
+- GRU
+- Transformer-based models (BERT)
+- Streamlit Web Application
+- Flask/FastAPI Deployment
+- Docker
+- Cloud Deployment
+
+---
+
+## License
+
+This project is licensed under the MIT License.
