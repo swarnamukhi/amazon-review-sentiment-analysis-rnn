@@ -148,9 +148,9 @@ The trained model successfully learned meaningful contextual information from cu
 
 ---
 
-# 6. Key Concepts Learned
+# 6. Key Concepts Covered
 
-This project provided hands-on experience with numerous Deep Learning and NLP concepts, including:
+Throughout this project, the following concepts were introduced and applied:
 
 - Natural Language Processing (NLP)
 - Text Cleaning
@@ -159,7 +159,6 @@ This project provided hands-on experience with numerous Deep Learning and NLP co
 - Integer Encoding
 - Sequence Padding
 - Word Embeddings
-- Dense Embeddings
 - Recurrent Neural Networks (RNN)
 - Hidden States
 - Vanishing Gradient Problem
@@ -169,15 +168,11 @@ This project provided hands-on experience with numerous Deep Learning and NLP co
 - Candidate Cell State
 - Output Gate
 - Cell State
-- Hidden State
 - Backpropagation Through Time (BPTT)
 - Dropout Regularization
 - Binary Classification
-- Binary Crossentropy Loss
-- Adam Optimizer
 - Bayesian Hyperparameter Optimization
 - Keras Tuner
-
 ---
 
 # 7. Strengths of the Project
